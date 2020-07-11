@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+	name: efs-prov
+spec:
+	selector:
+		matchLabels:
+			app: provisioner-for-efs
+	replicas: 2
+	template:
+		labels:
+			app: provisioner-for-efs
+	spec:
+		containers:
+			- name: efs-provisioner
+			   image: quay.io/external_storage/efs-provisioner:v0.1.0
+			   env:
+			   	- name: FILE_SYSTEM_ID
+				   value: fs-c2e66d13
+				- name: AWS_REGION
+				   value: ap-south-1
+				- name: PROVISIONER_NAME
+				   value: my-prov/aws-efs
+			   volumeMounts:
+				- name: pv-vol
+				   mountPath: /persistentvolumes
+		volumes:
+			- name: pv-vol
+			   nfs:
+				server: fs-c2e66d13.efs.ap-south-1.amazonaws.com
+				path: / 
